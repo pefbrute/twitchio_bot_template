@@ -167,14 +167,6 @@ try:
     with open('.env', 'w') as env_file:
         for key, value in temp_env_data.items():
             env_file.write(f"{key}={value}\n")
-        
-        # If there's an OPENAI_API_KEY in the original .env, save it too
-        if 'OPENAI_API_KEY' in env_data:
-            env_file.write(f"OPENAI_API_KEY={env_data['OPENAI_API_KEY']}\n")
-        else:
-            openai_key = get_input("Enter your OpenAI API key (or leave empty if you don't have one)")
-            if openai_key:
-                env_file.write(f"OPENAI_API_KEY={openai_key}\n")
     
     print("\nSetup completed successfully! .env file created/updated.")
     print("Now you need to modify the bot code for proper message deletion.")
