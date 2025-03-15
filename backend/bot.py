@@ -4,9 +4,6 @@ import requests
 from openai import OpenAI
 from twitchio.ext import commands
 from dotenv import set_key, load_dotenv
-from utils.word_filter import word_filter
-from api_commands.twitch_api import TwitchAPI
-from utils.cooldown_manager import cooldown_manager
 import asyncio
 
 # Configure logging
@@ -16,13 +13,7 @@ logger = logging.getLogger('twitch_bot')
 
 load_dotenv()
 
-# Load OpenAI API key
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-
-# Initialize OpenAI client
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
-
-class SpoilerBot(commands.Bot):
+class CustomBot(commands.Bot):
     def __init__(self, auth_creds):
         # Get auth credentials
         self.bot_username = auth_creds['bot_username']
@@ -42,9 +33,6 @@ class SpoilerBot(commands.Bot):
         # Add whisper capability
         self.can_send_whispers = True
         
-        # Set up cooldown manager privileged users
-        cooldown_manager.privileged_users.extend(["Lisiy_tapocheck"])  # Only include specific users who should bypass cooldowns
-        
         # Initialize token refresh task
         self.token_check_task = None
         
@@ -54,9 +42,6 @@ class SpoilerBot(commands.Bot):
             prefix='!',
             initial_channels=[self.channel_name]
         )
-        
-        # Initialize API commands after parent class initialization
-        self.api = TwitchAPI(self)
         
         # Start token refresh task
         self.token_check_task = self.loop.create_task(self.token_check_loop())
@@ -180,21 +165,7 @@ class SpoilerBot(commands.Bot):
             return True
         except Exception as e:
             logger.error(f"Failed to refresh OAuth token: {str(e)}")
-            return False 
-
-    async def send_safe(self, ctx, message):
-        """Send a message after checking it against the word filter"""
-        is_safe, filtered_message = word_filter.filter_message(message)
-        
-        if is_safe:
-            # Message is safe to send
-            await ctx.send(message)
-            return True
-        else:
-            # Message contains banned phrases - log it but don't send
-            logger.warning(f"Prevented sending message with banned phrase: {message}")
-            # Optionally send a notification to the channel owner through DM or other means
-            return False 
+            return False
 
     async def send_whisper(self, user, message):
         """Send a whisper (private message) to a user"""

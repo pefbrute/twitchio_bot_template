@@ -4,7 +4,7 @@ import importlib
 import pkgutil
 from dotenv import load_dotenv
 import commands
-from bot import SpoilerBot
+from bot import CustomBot
 from twitch_auth import validate_token_sync, get_auth_credentials
 import importlib.util
 
@@ -70,7 +70,7 @@ def main():
         return
     
     # Initialize the bot with the validated credentials
-    bot = SpoilerBot(auth_creds)
+    bot = CustomBot(auth_creds)
     
     # Load command modules
     load_commands(bot)
