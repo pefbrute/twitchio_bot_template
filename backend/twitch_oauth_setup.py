@@ -7,31 +7,31 @@ import json
 import time
 from urllib.parse import urlparse, parse_qs
 
-print("Скрипт настройки токенов Twitch OAuth для бота-модератора")
+print("Twitch OAuth Token Setup Script for Moderator Bot")
 print("=========================================================")
 
-# Функция для получения ввода пользователя
+# Function to get user input
 def get_input(prompt):
     return input(f"{prompt}: ").strip()
 
-# Проверка наличия .env файла и чтение данных из него, если он существует
+# Check for .env file and read data from it if it exists
 env_data = {}
 if os.path.exists('.env'):
-    print("Найден существующий файл .env. Чтение данных из него...")
+    print("Found existing .env file. Reading data from it...")
     with open('.env', 'r') as file:
         for line in file:
             if '=' in line:
                 key, value = line.strip().split('=', 1)
                 env_data[key] = value
-    print("Данные из .env файла загружены.")
+    print("Data from .env file loaded.")
 
-# Получение необходимых данных от пользователя или из .env
-client_id = env_data.get('CLIENT_ID') or get_input("Введите ваш Client ID")
-client_secret = env_data.get('CLIENT_SECRET') or get_input("Введите ваш Client Secret")
-bot_username = env_data.get('BOT_USERNAME') or get_input("Введите имя аккаунта бота (НЕ ваш основной аккаунт)")
-channel_name = env_data.get('CHANNEL_NAME') or get_input("Введите имя канала, который будет модерировать бот")
+# Get required data from user or from .env
+client_id = env_data.get('CLIENT_ID') or get_input("Enter your Client ID")
+client_secret = env_data.get('CLIENT_SECRET') or get_input("Enter your Client Secret")
+bot_username = env_data.get('BOT_USERNAME') or get_input("Enter bot account name (NOT your main account)")
+channel_name = env_data.get('CHANNEL_NAME') or get_input("Enter the channel name that the bot will moderate")
 
-# Сохраняем во временный .env
+# Save to temporary .env
 temp_env_data = {
     'BOT_USERNAME': bot_username,
     'CHANNEL_NAME': channel_name,
@@ -39,43 +39,43 @@ temp_env_data = {
     'CLIENT_SECRET': client_secret,
 }
 
-# Генерация URL авторизации
+# Generate authorization URL
 scopes = 'chat:read+chat:edit+channel:moderate+moderator:manage:chat_messages+moderator:manage:banned_users+moderator:read:followers+whispers:edit+whispers:read+user:manage:whispers'
 auth_url = f"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={client_id}&redirect_uri=http://localhost:3000&scope={scopes}&force_verify=true"
 
-print("\n============ ВАЖНО ============")
-print("1. Перед продолжением ВЫЙДИТЕ из своего основного аккаунта Twitch")
-print("2. Войдите в аккаунт БОТА ({}), который будет модератором".format(bot_username))
-print("3. Убедитесь, что вы назначили бота модератором вашего канала")
-print("   Для этого напишите в чате вашего канала: /mod {}".format(bot_username))
+print("\n============ IMPORTANT ============")
+print("1. Before continuing, LOG OUT of your main Twitch account")
+print("2. Log in to the BOT account ({}) that will be the moderator".format(bot_username))
+print("3. Make sure you've made the bot a moderator of your channel")
+print("   To do this, type in your channel chat: /mod {}".format(bot_username))
 print("============================\n")
 
-input("После выполнения этих шагов нажмите Enter для продолжения...")
+input("After completing these steps, press Enter to continue...")
 
-# Открываем URL авторизации в браузере
-print(f"\nОткрывается URL для авторизации. Войдите в аккаунт БОТА ({bot_username}) и разрешите доступ.")
-print(f"URL авторизации: {auth_url}")
+# Opening authorization URL in browser
+print(f"\nOpening authorization URL. Log in to the BOT account ({bot_username}) and allow access.")
+print(f"Authorization URL: {auth_url}")
 webbrowser.open(auth_url)
 
-# Ожидаем ввода кода авторизации
-print("\nПосле авторизации вы будете перенаправлены на localhost с ошибкой 'This site can't be reached'.")
-print("Скопируйте весь URL из адресной строки браузера (он содержит код авторизации).")
+# Wait for authorization code input
+print("\nAfter authorization, you will be redirected to localhost with a 'This site can't be reached' error.")
+print("Copy the entire URL from your browser's address bar (it contains the authorization code).")
 
-redirect_url = get_input("Вставьте полный URL, на который вы были перенаправлены")
+redirect_url = get_input("Paste the full URL you were redirected to")
 
-# Извлечение кода авторизации из URL
+# Extract authorization code from URL
 parsed_url = urlparse(redirect_url)
 query_params = parse_qs(parsed_url.query)
 auth_code = query_params.get('code', [None])[0]
 
 if not auth_code:
-    print("Ошибка: Не удалось извлечь код авторизации из URL.")
+    print("Error: Could not extract authorization code from URL.")
     sys.exit(1)
 
-print(f"Код авторизации получен: {auth_code}")
+print(f"Authorization code obtained: {auth_code}")
 
-# Обмен кода авторизации на токены
-print("\nОбмен кода авторизации на токены доступа...")
+# Exchange authorization code for tokens
+print("\nExchanging authorization code for access tokens...")
 
 token_url = "https://id.twitch.tv/oauth2/token"
 payload = {
@@ -91,9 +91,9 @@ try:
     response.raise_for_status()
     token_data = response.json()
     
-    # Проверяем, что в ответе есть необходимые токены
+    # Check if the response contains the required tokens
     if 'access_token' not in token_data or 'refresh_token' not in token_data:
-        print("Ошибка: Не удалось получить токены доступа. Ответ сервера:")
+        print("Error: Failed to get access tokens. Server response:")
         print(json.dumps(token_data, indent=2))
         sys.exit(1)
     
@@ -101,26 +101,26 @@ try:
     refresh_token = token_data['refresh_token']
     scopes = token_data.get('scope', [])
     
-    print("Токены успешно получены!")
-    print(f"Access Token: {access_token[:10]}...{access_token[-5:]} (срок действия: {token_data['expires_in']} секунд)")
+    print("Tokens successfully obtained!")
+    print(f"Access Token: {access_token[:10]}...{access_token[-5:]} (expires in: {token_data['expires_in']} seconds)")
     print(f"Refresh Token: {refresh_token[:10]}...{refresh_token[-5:]}")
-    print(f"Полученные разрешения (scopes): {', '.join(scopes)}")
+    print(f"Obtained permissions (scopes): {', '.join(scopes)}")
     
-    # Проверяем, что получены все необходимые разрешения
+    # Check if all required permissions are obtained
     required_scopes = ['chat:read', 'chat:edit', 'channel:moderate']
     missing_scopes = [scope for scope in required_scopes if scope not in scopes]
     
     if missing_scopes:
-        print("\nВНИМАНИЕ: Не получены все необходимые разрешения!")
-        print(f"Отсутствуют разрешения: {', '.join(missing_scopes)}")
-        print("Бот может работать некорректно без этих разрешений.")
+        print("\nWARNING: Not all required permissions were obtained!")
+        print(f"Missing permissions: {', '.join(missing_scopes)}")
+        print("The bot may not work correctly without these permissions.")
     
-    # Сохраняем токены в .env файл
+    # Save tokens to .env file
     temp_env_data['ACCESS_TOKEN'] = access_token
     temp_env_data['REFRESH_TOKEN'] = refresh_token
     
-    # Проверяем валидность токена
-    print("\nПроверка валидности полученного токена...")
+    # Validate token
+    print("\nValidating obtained token...")
     headers = {
         'Authorization': f'Bearer {access_token}'
     }
@@ -128,63 +128,63 @@ try:
     
     if validate_response.status_code == 200:
         validate_data = validate_response.json()
-        print(f"Токен действителен! Авторизован как: {validate_data.get('login')}")
+        print(f"Token is valid! Authorized as: {validate_data.get('login')}")
         print(f"User ID: {validate_data.get('user_id')}")
         
-        # Проверяем, что токен принадлежит боту, а не основному аккаунту
+        # Check if the token belongs to the bot, not the main account
         if validate_data.get('login') != bot_username.lower():
-            print(f"\nВНИМАНИЕ! Токен получен для аккаунта {validate_data.get('login')}, а не для бота {bot_username}!")
-            print("Это означает, что вы авторизовались под неправильным аккаунтом.")
-            print("Рекомендуется очистить куки браузера и повторить процесс, войдя под аккаунтом бота.")
-            proceed = input("Хотите продолжить несмотря на это? (да/нет): ").lower()
-            if proceed != 'да':
-                print("Операция прервана пользователем.")
+            print(f"\nWARNING! Token obtained for account {validate_data.get('login')}, not for bot {bot_username}!")
+            print("This means you authorized with the wrong account.")
+            print("It's recommended to clear your browser cookies and repeat the process, logging in with the bot account.")
+            proceed = input("Do you want to continue anyway? (yes/no): ").lower()
+            if proceed != 'yes':
+                print("Operation cancelled by user.")
                 sys.exit(1)
     else:
-        print("Ошибка при валидации токена:")
+        print("Error validating token:")
         print(validate_response.text)
     
-    # Сохраняем все данные в .env файл
-    print("\nСохранение данных в файл .env...")
+    # Save all data to .env file
+    print("\nSaving data to .env file...")
     with open('.env', 'w') as env_file:
         for key, value in temp_env_data.items():
             env_file.write(f"{key}={value}\n")
         
-        # Если есть OPENAI_API_KEY в оригинальном .env, сохраняем его тоже
+        # If there's an OPENAI_API_KEY in the original .env, save it too
         if 'OPENAI_API_KEY' in env_data:
             env_file.write(f"OPENAI_API_KEY={env_data['OPENAI_API_KEY']}\n")
         else:
-            openai_key = get_input("Введите ваш ключ OpenAI API (или оставьте пустым, если его нет)")
+            openai_key = get_input("Enter your OpenAI API key (or leave empty if you don't have one)")
             if openai_key:
                 env_file.write(f"OPENAI_API_KEY={openai_key}\n")
     
-    print("\nНастройка успешно завершена! Файл .env создан/обновлен.")
-    print("Теперь необходимо исправить код бота для правильного удаления сообщений.")
+    print("\nSetup completed successfully! .env file created/updated.")
+    print("Now you need to modify the bot code for proper message deletion.")
     
-    # Инструкции по редактированию кода
-    print("\nРЕКОМЕНДУЕМЫЕ ИЗМЕНЕНИЯ В КОДЕ БОТА:")
-    print("Замените соответствующую часть метода event_message в main.py на:")
+    # Instructions for code modification
+    print("\nRECOMMENDED CHANGES IN BOT CODE:")
+    print("Replace the corresponding part of the event_message method in main.py with:")
     print("""
     if is_spoiler:
         logger.info(f"Spoiler detected in message from {message.author.name}: {message.content}")
         logger.info(f"Message ID: {message.id}")
         
         try:
-            # Правильный способ удаления сообщений в twitchio
+            # Correct way to delete messages in twitchio
             logger.info(f"Attempting to delete message with ID: {message.id}")
             await message.channel.send(f"/delete {message.id}")
             logger.info(f"Successfully sent delete command for message from {message.author.name}")
             
-            # Уведомляем о причине удаления
-            await message.channel.send(f"@{message.author.name}, ваше сообщение было удалено, так как оно содержит спойлер.")
+            # Notify about deletion reason
+            await message.channel.send(f"@{message.author.name}, your message was deleted because it contains a spoiler.")
             logger.info(f"Notified user about spoiler message from {message.author.name}")
         except Exception as e:
             logger.error(f"Failed to delete message: {str(e)}")
-            # Отправляем предупреждение, если не можем удалить
-            await message.channel.send(f"@{message.author.name}, ваше сообщение содержит спойлер! Пожалуйста, не раскрывайте спойлеры в чате.")
+            # Send warning if we can't delete
+            await message.channel.send(f"@{message.author.name}, your message contains a spoiler! Please don't reveal spoilers in chat.")
             logger.info(f"Warned user about spoiler message from {message.author.name}")
     """)
     
 except requests.exceptions.RequestException as e:
-    print(f"Ошибка при запросе токенов: {e}")
+    print(f"Error requesting tokens: {e}")
     sys.exit(1) 
