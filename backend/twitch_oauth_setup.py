@@ -10,6 +10,21 @@ from urllib.parse import urlparse, parse_qs
 print("Twitch OAuth Token Setup Script for Moderator Bot")
 print("=========================================================")
 
+print("\nHow to get your Client ID and Client Secret:")
+print("1. Go to https://dev.twitch.tv/console")
+print("2. Log in with your Twitch account")
+print("3. Click on 'Applications' in the top menu")
+print("4. Click on 'Register Your Application'")
+print("5. Fill in the following:")
+print("   - Name: Choose any name for your bot (IMPORTANT: do not use 'twitch' in the name)")
+print("   - OAuth Redirect URLs: http://localhost:3000")
+print("   - Category: Chat Bot")
+print("6. Click 'Create'")
+print("7. You will see your Client ID")
+print("8. Click 'New Secret' to generate your Client Secret")
+print("   (Save both Client ID and Secret - you won't see the Secret again!)\n")
+print("=========================================================\n")
+
 # Function to get user input
 def get_input(prompt):
     return input(f"{prompt}: ").strip()
