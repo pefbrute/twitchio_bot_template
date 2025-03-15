@@ -60,8 +60,12 @@ auth_url = f"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=
 print("\n============ IMPORTANT ============")
 print("1. Before continuing, LOG OUT of your main Twitch account")
 print("2. Log in to the BOT account ({}) that will be the moderator".format(bot_username))
-print("3. Make sure you've made the bot a moderator of your channel")
-print("   To do this, type in your channel chat: /mod {}".format(bot_username))
+print("3. It's recommended to make the bot a moderator of your channel")
+print("   While this step is optional, it will:")
+print("   - Increase the message rate limit for the bot")
+print("   - Allow the bot to timeout/ban users if needed")
+print("   To make the bot a moderator, type in your channel chat:")
+print("   /mod {}".format(bot_username))
 print("============================\n")
 
 input("After completing these steps, press Enter to continue...")
@@ -201,4 +205,4 @@ try:
     
 except requests.exceptions.RequestException as e:
     print(f"Error requesting tokens: {e}")
-    sys.exit(1) 
+    sys.exit(1)
