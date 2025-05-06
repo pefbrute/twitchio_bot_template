@@ -22,7 +22,7 @@ We'll be building this bot with a focus on good practices, including robust auth
 
 Before we dive in, make sure you have the following:
 
-1.  **Python 3.7+ installed:** You can download it from [python.org](https://www.python.org/).
+1.  **Python 3.10.12 installed (though 3.7+ should generally work):** You can download it from [python.org](https://www.python.org/).
 2.  **A Twitch Account for Your Bot:** It's best practice to create a separate Twitch account for your bot, not use your main streaming account.
 3.  **Twitch Developer Application Credentials (Client ID & Client Secret):**
     *   Go to the [Twitch Developer Console](https://dev.twitch.tv/console/apps).
@@ -57,7 +57,7 @@ Let's get our project structured.
     ```bash
     pip install twitchio python-dotenv requests
     ```
-    *Note: This guide was developed and tested using `twitchio` version `2.10.0` and `requests` version `2.32.3` on Ubuntu 22.04. Other versions or operating systems should generally work, but you might encounter minor differences.*
+    *Note: This guide was developed and tested using Python `3.10.12`, `twitchio` version `2.10.0`, and `requests` version `2.32.3` on Ubuntu 22.04. Other versions or operating systems should generally work, but you might encounter minor differences.*
 
     You can also create a `requirements.txt` file in your project root (`my_twitch_bot/requirements.txt`):
     ```plaintext
@@ -690,4 +690,4 @@ This foundation is solid. You can now:
 **What command will you build next for your Twitch bot? Share your ideas in the comments below!**
 
 Happy coding!
----
+--- 
