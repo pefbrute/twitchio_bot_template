@@ -268,4 +268,6 @@ Congratulations! You\'ve successfully navigated the Twitch OAuth2 process and ob
 *   **Token Lifecycle**: Understand that Access Tokens expire and need to be refreshed using the Refresh Token. Implement logic in your bot to handle this automatically.
 *   **Scopes Matter**: Only request the permissions (scopes) your bot absolutely needs.
 
+Stay tuned for the next article in this series, where we\'ll dive into the actual implementation of a Twitch bot using the tokens and knowledge you\'ve gained here!
+
 Now that you have the keys to the kingdom, what cool features are you planning to build for your Twitch bot? Share your ideas or any questions you have in the comments below! Happy coding!
